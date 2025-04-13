@@ -1,28 +1,55 @@
 
 # Read AnnData file format in MATLAB Datastore
 
-anndata is a Python package for handling annotated data - this is a thin MATLAB wrapper on it.
+[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=yanndebray/anndata-matlab)
+
+anndata is a Python package for handling annotated data \- this is a thin MATLAB wrapper on it.
 
 <a name="beginToc"></a>
 
 ## Table of Contents
-&emsp;[Setup python env](#setup-python-env)
+&emsp;&emsp;[Setup python env](#setup-python-env)
  
-&emsp;[Create AnnData file in Python](#create-anndata-file-in-python)
+&emsp;&emsp;[Create AnnData file in Python](#create-anndata-file-in-python)
  
-&emsp;[Create a Datastore in MATLAB](#create-a-datastore-in-matlab)
+&emsp;&emsp;[Create a Datastore in MATLAB](#create-a-datastore-in-matlab)
  
-&emsp;[Cast into a MATLAB datatype](#cast-into-a-matlab-datatype)
+&emsp;&emsp;[Cast into a MATLAB datatype](#cast-into-a-matlab-datatype)
+ 
+&emsp;&emsp;[Utils](#utils)
  
 <a name="endToc"></a>
 
-# Setup python env
+## Setup python env
+
+Inspire from [matlab\-with\-python\-book/8\_Resources.md at main · yanndebray/matlab\-with\-python\-book](https://github.com/yanndebray/matlab-with-python-book/blob/main/8_Resources.md)
+
 ```matlab
-!python get-pip.py
+websave("/tmp/get-pip.py","https://bootstrap.pypa.io/get-pip.py");
+!python /tmp/get-pip.py
 ```
 
 ```matlabTextOutput
-python: can't open file '/OneDrive/MATLAB/anndata/get-pip.py': [Errno 2] No such file or directory
+Defaulting to user installation because normal site-packages is not writeable
+Collecting pip
+  Downloading pip-25.0.1-py3-none-any.whl.metadata (3.7 kB)
+Collecting setuptools
+  Downloading setuptools-78.1.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting wheel
+  Downloading wheel-0.45.1-py3-none-any.whl.metadata (2.3 kB)
+Downloading pip-25.0.1-py3-none-any.whl (1.8 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/1.8 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m1.8/1.8 MB□[0m □[31m98.8 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading setuptools-78.1.0-py3-none-any.whl (1.3 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/1.3 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m1.3/1.3 MB□[0m □[31m109.0 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading wheel-0.45.1-py3-none-any.whl (72 kB)
+Installing collected packages: wheel, setuptools, pip
+□[33m  WARNING: The script wheel is installed in '/home/matlab/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.□[0m□[33m
+□[0m□[33m  WARNING: The scripts pip, pip3 and pip3.10 are installed in '/home/matlab/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.□[0m□[33m
+□[0mSuccessfully installed pip-25.0.1 setuptools-78.1.0 wheel-0.45.1
 ```
 
 ```matlab
@@ -31,21 +58,60 @@ python: can't open file '/OneDrive/MATLAB/anndata/get-pip.py': [Errno 2] No such
 
 ```matlabTextOutput
 Defaulting to user installation because normal site-packages is not writeable
-Requirement already satisfied: anndata in /home/matlab/.local/lib/python3.10/site-packages (0.11.3)
-Requirement already satisfied: array-api-compat!=1.5,>1.4 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (1.11.2)
-Requirement already satisfied: exceptiongroup in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (1.2.2)
-Requirement already satisfied: h5py>=3.7 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (3.13.0)
-Requirement already satisfied: natsort in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (8.4.0)
-Requirement already satisfied: numpy>=1.23 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (2.2.4)
-Requirement already satisfied: packaging>=20.0 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (24.2)
-Requirement already satisfied: pandas!=2.1.0rc0,!=2.1.2,>=1.4 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (2.2.3)
-Requirement already satisfied: scipy>1.8 in /home/matlab/.local/lib/python3.10/site-packages (from anndata) (1.15.2)
-Requirement already satisfied: python-dateutil>=2.8.2 in /usr/lib/python3/dist-packages (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata) (2.8.2)
-Requirement already satisfied: pytz>=2020.1 in /home/matlab/.local/lib/python3.10/site-packages (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata) (2025.1)
-Requirement already satisfied: tzdata>=2022.7 in /home/matlab/.local/lib/python3.10/site-packages (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata) (2025.1)
+Collecting anndata
+  Downloading anndata-0.11.4-py3-none-any.whl.metadata (9.3 kB)
+Collecting array-api-compat!=1.5,>1.4 (from anndata)
+  Downloading array_api_compat-1.11.2-py3-none-any.whl.metadata (1.9 kB)
+Collecting exceptiongroup (from anndata)
+  Downloading exceptiongroup-1.2.2-py3-none-any.whl.metadata (6.6 kB)
+Collecting h5py>=3.7 (from anndata)
+  Downloading h5py-3.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.5 kB)
+Collecting natsort (from anndata)
+  Downloading natsort-8.4.0-py3-none-any.whl.metadata (21 kB)
+Collecting numpy>=1.23 (from anndata)
+  Downloading numpy-2.2.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+Collecting packaging>=24.2 (from anndata)
+  Downloading packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+Collecting pandas!=2.1.0rc0,!=2.1.2,>=1.4 (from anndata)
+  Downloading pandas-2.2.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (89 kB)
+Collecting scipy>1.8 (from anndata)
+  Downloading scipy-1.15.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Collecting python-dateutil>=2.8.2 (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata)
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting pytz>=2020.1 (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata)
+  Downloading pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)
+Collecting tzdata>=2022.7 (from pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata)
+  Downloading tzdata-2025.2-py2.py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: six>=1.5 in /usr/lib/python3/dist-packages (from python-dateutil>=2.8.2->pandas!=2.1.0rc0,!=2.1.2,>=1.4->anndata) (1.16.0)
+Downloading anndata-0.11.4-py3-none-any.whl (144 kB)
+Downloading array_api_compat-1.11.2-py3-none-any.whl (53 kB)
+Downloading h5py-3.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.5 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/4.5 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m4.5/4.5 MB□[0m □[31m168.9 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading numpy-2.2.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.4 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/16.4 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m16.4/16.4 MB□[0m □[31m268.2 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading packaging-24.2-py3-none-any.whl (65 kB)
+Downloading pandas-2.2.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.1 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/13.1 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m13.1/13.1 MB□[0m □[31m218.0 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading scipy-1.15.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (37.6 MB)
+□[?25l   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m0.0/37.6 MB□[0m □[31m?□[0m eta □[36m-:--:--□[0m
+□[2K   □[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━□[0m □[32m37.6/37.6 MB□[0m □[31m228.6 MB/s□[0m eta □[36m0:00:00□[0m
+□[?25hDownloading exceptiongroup-1.2.2-py3-none-any.whl (16 kB)
+Downloading natsort-8.4.0-py3-none-any.whl (38 kB)
+Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading pytz-2025.2-py2.py3-none-any.whl (509 kB)
+Downloading tzdata-2025.2-py2.py3-none-any.whl (347 kB)
+Installing collected packages: pytz, tzdata, python-dateutil, packaging, numpy, natsort, exceptiongroup, array-api-compat, scipy, pandas, h5py, anndata
+□[33m  WARNING: The scripts f2py and numpy-config are installed in '/home/matlab/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.□[0m□[33m
+□[0m□[33m  WARNING: The script natsort is installed in '/home/matlab/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.□[0m□[33m
+□[0mSuccessfully installed anndata-0.11.4 array-api-compat-1.11.2 exceptiongroup-1.2.2 h5py-3.13.0 natsort-8.4.0 numpy-2.2.4 packaging-24.2 pandas-2.2.3 python-dateutil-2.9.0.post0 pytz-2025.2 scipy-1.15.2 tzdata-2025.2
 ```
 
-# Create AnnData file in Python
+## Create AnnData file in Python
 ```matlab
 pyrunfile("create_anndata.py")
 ```
@@ -54,7 +120,7 @@ pyrunfile("create_anndata.py")
 AnnData file 'example_anndata.h5ad' has been created.
 ```
 
-# Create a Datastore in MATLAB
+## Create a Datastore in MATLAB
 ```matlab
 ds = fileDatastore("*.h5ad","ReadFcn",@py.anndata.read_h5ad)
 ```
@@ -64,10 +130,10 @@ ds =
   FileDatastore with properties:
 
                        Files: {
-                              '/OneDrive/MATLAB/anndata/example_anndata.h5ad'
+                              '/MATLAB Drive/anndata-matlab/example_anndata.h5ad'
                               }
                      Folders: {
-                              '/OneDrive/MATLAB/anndata'
+                              '/MATLAB Drive/anndata-matlab'
                               }
                  UniformRead: 0
                     ReadMode: 'file'
@@ -126,22 +192,32 @@ ans =
 
 ```
 
-# Cast into a MATLAB datatype
+## Cast into a MATLAB datatype
 ```matlab
 double(data{1}.X)
 ```
 
 ```matlabTextOutput
 ans = 100x10
-    0.7588    0.1857    0.1584    0.3342    0.6175    0.2583    0.3866    0.3526    0.4029    0.5127
-    0.0003    0.5374    0.6164    0.9802    0.6877    0.1799    0.7184    0.8926    0.9330    0.1712
-    0.3698    0.1750    0.3881    0.2430    0.8898    0.3881    0.4184    0.8182    0.7536    0.6670
-    0.2544    0.3308    0.5912    0.2956    0.5890    0.6597    0.4327    0.6635    0.7783    0.1073
-    0.0528    0.9274    0.4190    0.2508    0.2715    0.3196    0.1004    0.4111    0.7852    0.5738
-    0.8798    0.4915    0.7152    0.4133    0.4345    0.5131    0.2989    0.0315    0.1183    0.2182
-    0.7209    0.4909    0.3734    0.9942    0.2845    0.1972    0.6129    0.6037    0.7029    0.0847
-    0.8532    0.1064    0.6125    0.4100    0.3122    0.3772    0.5875    0.2830    0.5387    0.1962
-    0.5707    0.7673    0.7089    0.7311    0.4006    0.0094    0.8223    0.3179    0.8020    0.7084
-    0.7709    0.9276    0.1386    0.4550    0.3837    0.8726    0.4717    0.6807    0.7017    0.0160
+    0.3902    0.4530    0.2303    0.1644    0.1387    0.0044    0.5164    0.7349    0.9660    0.8410
+    0.4711    0.7978    0.3014    0.0239    0.4256    0.7271    0.8429    0.4177    0.8212    0.5306
+    0.7812    0.0382    0.7872    0.6018    0.3788    0.9143    0.8811    0.8398    0.1012    0.0655
+    0.2274    0.4132    0.6263    0.3336    0.8878    0.1644    0.9931    0.9012    0.3154    0.1782
+    0.3972    0.8497    0.0596    0.3916    0.3861    0.5077    0.0408    0.5115    0.6194    0.8040
+    0.7103    0.5851    0.0006    0.2181    0.8362    0.1073    0.2539    0.0303    0.0563    0.5896
+    0.4740    0.2416    0.3401    0.1660    0.4830    0.6881    0.7436    0.9198    0.6605    0.2095
+    0.7402    0.6688    0.3366    0.9501    0.7017    0.8497    0.3403    0.9303    0.7928    0.3628
+    0.3244    0.2612    0.2610    0.7588    0.8610    0.8312    0.8603    0.9579    0.8278    0.0482
+    0.4528    0.3654    0.3428    0.1934    0.1149    0.1027    0.9573    0.6976    0.3066    0.8612
 
+```
+
+## Utils
+-  Add badge to Open in MATLAB Online 
+
+`[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=yanndebray/anndata-matlab)`
+
+-  Export Livescript to Markdown (don't forget to add back the badge with the line above) 
+```matlab
+export livescript.mlx README.md;
 ```
